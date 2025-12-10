@@ -6,6 +6,8 @@ dist/
 wheels/
 *.egg-info
 .env
+calculator/lorem.txt
+calculator/pkg/morelorem.txt
 
 # Virtual environments
 .venv
