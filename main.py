@@ -1,10 +1,13 @@
 import os
 from dotenv import load_dotenv
 import argparse
+import prompts
+
 
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
+
 
 def main():
 
@@ -25,13 +28,19 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 
-    # Now we can access `args.prompt`
+    system_prompt = prompts.system_prompt
 
-    chosen_model = "gemini-2.5-flash"
+    # Now we can access `args.prompt`
+    model_name = "gemini-2.5-flash"
     #chosen_message = args.prompt
     messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
+    #response = client.models.generate_content(model=chosen_model, contents=messages)
 
-    response = client.models.generate_content(model=chosen_model, contents=messages)
+    response = client.models.generate_content(
+        model=model_name,
+        contents=messages,
+        config=types.GenerateContentConfig(system_instruction=system_prompt),
+    )
 
     if response.usage_metadata is None:
         raise RuntimeError("Usage metadata is missing from the response.")
