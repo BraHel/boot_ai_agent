@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from functions.get_files_info import schema_get_files_info
 import argparse
 import prompts
 
@@ -19,7 +20,9 @@ def main():
     from google import genai
     from google.genai import types
 
-    
+    available_functions = types.Tool(
+        function_declarations=[schema_get_files_info],
+    )
 
     client = genai.Client(api_key=api_key)
 
@@ -39,7 +42,9 @@ def main():
     response = client.models.generate_content(
         model=model_name,
         contents=messages,
-        config=types.GenerateContentConfig(system_instruction=system_prompt),
+        config=types.GenerateContentConfig(
+            tools=[available_functions], system_instruction=system_prompt
+        ),
     )
 
     if response.usage_metadata is None:
@@ -53,6 +58,10 @@ def main():
         print("Response tokens: " + str(response.usage_metadata.candidates_token_count))
 
     print(response.text)
+
+    if response.function_calls != None:
+        for function_call_part in response.function_calls:
+            print(f"Calling function: {function_call_part.name}({function_call_part.args})")
     
     #print("Hello from boot-ai-agent!")
 
