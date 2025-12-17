@@ -1,6 +1,9 @@
 import os
 from dotenv import load_dotenv
 from functions.get_files_info import schema_get_files_info
+from functions.get_file_content import schema_get_file_content
+from functions.run_python_file import schema_run_python_file
+from functions.write_file import schema_write_file
 import argparse
 import prompts
 
@@ -18,10 +21,10 @@ def main():
         return
     
     from google import genai
-    from google.genai import types
+    from google.genai import types, errors
 
     available_functions = types.Tool(
-        function_declarations=[schema_get_files_info],
+        function_declarations=[schema_get_files_info, schema_get_file_content, schema_run_python_file, schema_write_file],
     )
 
     client = genai.Client(api_key=api_key)
@@ -39,13 +42,18 @@ def main():
     messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
     #response = client.models.generate_content(model=chosen_model, contents=messages)
 
-    response = client.models.generate_content(
-        model=model_name,
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], system_instruction=system_prompt
-        ),
-    )
+    try:
+        response = client.models.generate_content(
+            model=model_name,
+            contents=messages,
+            config=types.GenerateContentConfig(
+                tools=[available_functions], system_instruction=system_prompt
+            ),
+        )
+    except Exception as e:
+        # Fallback behavior when the API call fails (e.g., quota exceeded)
+        print("Model call failed:", str(e))
+        return
 
     if response.usage_metadata is None:
         raise RuntimeError("Usage metadata is missing from the response.")

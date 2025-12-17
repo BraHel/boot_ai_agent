@@ -1,6 +1,9 @@
+from google.genai import types
+
 def run_python_file(working_directory, file_path, args=[]):
     import subprocess
     import os
+    
 
     # Construct the full path to the Python file
     full_path = os.path.join(working_directory, file_path)
@@ -37,3 +40,26 @@ def run_python_file(working_directory, file_path, args=[]):
         result += f"\nProcess exited with code {completed_process.returncode}"
     
     return result
+
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Executes python files with optional arguments.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="The directory from which to read a file.",
+            ),
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path to the Python file to be executed.",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(type=types.Type.STRING),
+                description="Optional arguments to pass to the Python script.",
+            ),
+        },
+    ),
+)
