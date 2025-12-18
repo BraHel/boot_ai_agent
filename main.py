@@ -4,6 +4,7 @@ from functions.get_files_info import schema_get_files_info
 from functions.get_file_content import schema_get_file_content
 from functions.run_python_file import schema_run_python_file
 from functions.write_file import schema_write_file
+from functions.call_function import call_function
 import argparse
 import prompts
 
@@ -68,8 +69,23 @@ def main():
     print(response.text)
 
     if response.function_calls != None:
+        function_response_list = []
         for function_call_part in response.function_calls:
-            print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+            #print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+            # Here you would implement the logic to call the function with the provided arguments
+            function_response = call_function(function_call_part, args.verbose)
+            
+            try:
+                if function_response.parts[0].function_response.response is not None:
+                    function_response_list.append(function_response.parts[0])
+                else:
+                    raise Exception("Function call failed")
+                if args.verbose is True:
+                    print(f"-> {function_response.parts[0].function_response.response}")
+
+            except Exception as e:
+                raise Exception("Function call failed")
+
     
     #print("Hello from boot-ai-agent!")
 
