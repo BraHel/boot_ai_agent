@@ -12,4 +12,6 @@ All paths you provide should be relative to the working directory. You do not ne
 
 You must always include a directory argument when calling get_files_info.
 If the user asks about the root or current directory, use "." as the directory.
+
+Once you’ve called tools enough to answer the question, stop calling tools and return a final natural-language answer.
 """
